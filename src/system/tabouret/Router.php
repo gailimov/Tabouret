@@ -17,6 +17,25 @@ namespace tabouret;
 /**
  * URL Router
  *
+ * Usage example:
+ *
+ *     // Setting routes and dispatch URLs
+ *     Router::getInstance()
+ *         ->add('home', array('^$', 'main.site.index'))
+ *         ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
+ *         ->dispatch();
+ *
+ *     // You can get current module, controller and action using following methods:
+ *     Router::getInstance()->getModule(); // Returns current module
+ *     Router::getInstance()->getController(); // Returns current controller
+ *     Router::getInstance()->getAction(); // Returns current action
+ *
+ *     // You also can generate URLs from routes
+ *     // Generates: /posts/something
+ *     $router->createUrl('post', array('slug' => 'something'));
+ *     // Generates: https://example.com/posts/something
+ *     $router->createUrl('post', array('slug' => 'something'), true, true);
+ *
  * @author Kanat Gailimov <gailimov@gmail.com>
  */
 class Router
@@ -36,6 +55,27 @@ class Router
     private $_routes = array();
 
     /**
+     * Module
+     *
+     * @var string
+     */
+    private $_module;
+
+    /**
+     * Controller
+     *
+     * @var string
+     */
+    private $_controller;
+
+    /**
+     * Action
+     *
+     * @var string
+     */
+    private $_action;
+
+    /**
      * Returns singleton instance
      *
      * @return \tabouret\Router
@@ -48,12 +88,45 @@ class Router
     }
 
     /**
+     * Returns module
+     *
+     * @return string
+     */
+    public function getModule()
+    {
+        return $this->_module;
+    }
+
+    /**
+     * Returns controller
+     *
+     * @return string
+     */
+    public function getController()
+    {
+        return $this->_controller;
+    }
+
+    /**
+     * Returns action
+     *
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->_action;
+    }
+
+    /**
      * Adds route
      *
      * Usage example:
      *
-     *     $router = new Router();
      *     $router->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
+     *
+     *     In this example we set route with name "post". Second argument is array of URL rule.
+     *     It contains URL pattern and callback function separated by dot and consisting of module,
+     *     controller and action.
      *
      * @param  string $name Name
      * @param  array  $rule Rule
@@ -80,15 +153,15 @@ class Router
                         continue;
                     $_GET[$key] = $value;
                 }
-                list($module, $controller, $action) = explode('.', $rule[1]);
-                $moduleDir = Registry::get('rootPath') . '/app/modules/' . $module;
+                list($this->_module, $this->_controller, $this->_action) = explode('.', $rule[1]);
+                $moduleDir = Registry::get('rootPath') . '/app/modules/' . $this->_module;
                 if (!is_dir($moduleDir))
-                    throw new \Exception('Module "' . $module . '" not found');
-                $controllerFile = $moduleDir . '/controllers/' . $controller . '.php';
+                    throw new \Exception('Module "' . $this->_module . '" not found');
+                $controllerFile = $moduleDir . '/controllers/' . $this->_controller . '.php';
                 if (!file_exists($controllerFile))
-                    throw new \Exception('Controller "' . $controller . '" in module "' . $module . '" not found');
+                    throw new \Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
                 require_once $controllerFile;
-                $func = $module . '\\controllers\\' . $controller . '\\' . $action;
+                $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
                 if (!function_exists($func)) {
                     header('HTTP/1.1 404 Not Found');
                     die('Not Found');
@@ -108,7 +181,7 @@ class Router
      *
      * Usage example:
      *
-     *     // Route: $router->add('post', array('^posts/(?P<slug>[-_a-z0-9]+)$', 'blog.posts.show'));
+     *     // Our route: $router->add('post', array('^posts/(?P<slug>[-_a-z0-9]+)$', 'blog.posts.show'));
      *
      *     // Generates: /posts/something
      *     $router->createUrl('post', array('slug' => 'something'));

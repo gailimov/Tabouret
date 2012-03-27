@@ -2,8 +2,10 @@
 
 namespace main\controllers\site;
 
+use tabouret\View;
+
 function index()
 {
-    echo 'main.site.index()';
+    View::render();
 }
 

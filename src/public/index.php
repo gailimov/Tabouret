@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL | E_STRICT);
+
 require_once __DIR__ . '/../system/vendors/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 
 $loader = new Symfony\Component\ClassLoader\UniversalClassLoader();
@@ -8,7 +10,7 @@ $loader->registerNamespaces(array(
 ));
 $loader->register();
 
-\tabouret\Registry::set('rootPath', __DIR__ . '/../');
+\tabouret\Registry::set('rootPath', __DIR__ . '/..');
 
 \tabouret\Router::getInstance()
     ->add('home', array('^$', 'main.site.index'))

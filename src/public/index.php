@@ -10,7 +10,7 @@ $loader->register();
 
 \tabouret\Registry::set('rootPath', __DIR__ . '/../');
 
-$router = new \tabouret\Router();
-$router->add('home', array('^$', 'main.site.index'))
-       ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
-$router->dispatch();
+\tabouret\Router::getInstance()
+    ->add('home', array('^$', 'main.site.index'))
+    ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
+    ->dispatch();

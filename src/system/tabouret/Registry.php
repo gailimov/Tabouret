@@ -53,14 +53,6 @@ class Registry
         return self::getInstance()->_registry[(string) $key];
     }
 
-    private function __construct()
-    {
-    }
-
-    private function __clone()
-    {
-    }
-
     /**
      * Returns singleton instance
      *
@@ -71,5 +63,13 @@ class Registry
         if (!self::$_instance)
             self::$_instance = new self();
         return self::$_instance;
+    }
+
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
     }
 }

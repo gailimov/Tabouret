@@ -17,11 +17,30 @@ namespace tabouret;
 class Router
 {
     /**
+     * Singleton instance
+     *
+     * @var \tabouret\Router
+     */
+    private static $_instance;
+
+    /**
      * Routes
      *
      * @var array
      */
     private $_routes = array();
+
+    /**
+     * Returns singleton instance
+     *
+     * @return \tabouret\Router
+     */
+    public static function getInstance()
+    {
+        if (!self::$_instance)
+            self::$_instance = new self();
+        return self::$_instance;
+    }
 
     /**
      * Adds route
@@ -167,5 +186,13 @@ class Router
     private function getHostInfo($https = false)
     {
         return ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+    }
+
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
     }
 }

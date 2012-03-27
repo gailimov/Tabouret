@@ -4,9 +4,16 @@ use tabouret\Router;
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
+    public function testGetInstance()
+    {
+        $obj1 = Router::getInstance();
+        $obj2 = Router::getInstance();
+        $this->assertTrue($obj1 === $obj2);
+    }
+
     public function testCreateUrl()
     {
-        $router = new Router();
+        $router = Router::getInstance();
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['SCRIPT_NAME'] = '/';
         $router->add('home', array('^$', 'main.site.index'))

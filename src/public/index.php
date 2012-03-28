@@ -10,9 +10,9 @@ $loader->registerNamespaces(array(
 ));
 $loader->register();
 
-\tabouret\Registry::set('rootPath', __DIR__ . '/..');
+tabouret\Registry::set('rootPath', __DIR__ . '/..');
 
-\tabouret\Router::getInstance()
+tabouret\Router::getInstance()
     ->add('home', array('^$', 'main.site.index'))
     ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
     ->dispatch();

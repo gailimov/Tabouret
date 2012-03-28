@@ -80,8 +80,11 @@ class View
     {
         extract($params);
         ob_start();
-        include_once Registry::get('rootPath') . '/app/modules/' . self::getRouter()->getModule() .
-                     '/views/' . $template . '.php';
+        $templateFile = Registry::get('rootPath') . '/app/modules/' . self::getRouter()->getModule() .
+                        '/views/' . $template . '.php';
+        if (!file_exists($templateFile))
+            throw new Exception('View file "' . $template . '.php" not found');
+        include_once $templateFile;
 
         return ob_get_clean();
     }

@@ -32,9 +32,9 @@ namespace tabouret;
  *
  *     // You also can generate URLs from routes
  *     // Generates: /posts/something
- *     $router->createUrl('post', array('slug' => 'something'));
+ *     Router::getInstance()->createUrl('post', array('slug' => 'something'));
  *     // Generates: https://example.com/posts/something
- *     $router->createUrl('post', array('slug' => 'something'), true, true);
+ *     Router::getInstance()->createUrl('post', array('slug' => 'something'), true, true);
  *
  * @author Kanat Gailimov <gailimov@gmail.com>
  */
@@ -122,7 +122,7 @@ class Router
      *
      * Usage example:
      *
-     *     $router->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
+     *     Router::getInstance()->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
      *
      *     In this example we set route with name "post". Second argument is array of URL rule.
      *     It contains URL pattern and callback function separated by dot and consisting of module,
@@ -142,7 +142,7 @@ class Router
     /**
      * Dispatching
      *
-     * @return void
+     * @return mixed Result of call_user_func() function
      */
     public function dispatch()
     {
@@ -156,18 +156,17 @@ class Router
                 list($this->_module, $this->_controller, $this->_action) = explode('.', $rule[1]);
                 $moduleDir = Registry::get('rootPath') . '/app/modules/' . $this->_module;
                 if (!is_dir($moduleDir))
-                    throw new \Exception('Module "' . $this->_module . '" not found');
+                    throw new Exception('Module "' . $this->_module . '" not found');
                 $controllerFile = $moduleDir . '/controllers/' . $this->_controller . '.php';
                 if (!file_exists($controllerFile))
-                    throw new \Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
+                    throw new Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
                 require_once $controllerFile;
                 $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
                 if (!function_exists($func)) {
                     header('HTTP/1.1 404 Not Found');
                     die('Not Found');
                 }
-                call_user_func($func);
-                return;
+                return call_user_func($func);
             }
         }
 

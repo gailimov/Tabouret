@@ -17,6 +17,13 @@ namespace tabouret;
 /**
  * Registry
  *
+ * Usage example:
+ *
+ *     // Setting a value
+ *     Registry::set('key', 'some value');
+ *     // Getting a value
+ *     Registry::get('key');
+ *
  * @author Kanat Gailimov <gailimov@gmail.com>
  */
 class Registry

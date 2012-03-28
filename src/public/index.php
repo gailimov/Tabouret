@@ -2,17 +2,10 @@
 
 error_reporting(E_ALL | E_STRICT);
 
-require_once __DIR__ . '/../system/vendors/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+// Change the following paths if necessary
+$app = __DIR__ . '/../system/tabouret/App.php';
+$config = __DIR__ . '/../app/config/main.php';
 
-$loader = new Symfony\Component\ClassLoader\UniversalClassLoader();
-$loader->registerNamespaces(array(
-    'tabouret' => __DIR__ . '/../system'
-));
-$loader->register();
+require_once $app;
 
-tabouret\Registry::set('rootPath', __DIR__ . '/..');
-
-tabouret\Router::getInstance()
-    ->add('home', array('^$', 'main.site.index'))
-    ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
-    ->dispatch();
+tabouret\App::getInstance()->init($config)->dispatch();

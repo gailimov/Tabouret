@@ -19,34 +19,27 @@ namespace tabouret;
  *
  * Usage example:
  *
- *     // Setting routes and dispatch URLs
- *     Router::getInstance()
- *         ->add('home', array('^$', 'main.site.index'))
- *         ->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
- *         ->dispatch();
+ *     // Setting routes and getting parts of matched route
+ *     $router->addRoute('home', array('^$', 'main.site.index'))
+ *            ->addRoute('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'))
+ *            ->getMatchedRouteParts();
  *
- *     // You can get current module, controller and action using following methods:
- *     Router::getInstance()->getModule(); // Returns current module
- *     Router::getInstance()->getController(); // Returns current controller
- *     Router::getInstance()->getAction(); // Returns current action
+ *     // Alternatively, you can use the addRoutes() method to set more than one route at once
+ *     $router->addRoutes(array(
+ *         'home' => array('^$', 'main.site.index'),
+ *         'post' => array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show')
+ *     ));
  *
  *     // You also can generate URLs from routes
  *     // Generates: /posts/something
- *     Router::getInstance()->createUrl('post', array('slug' => 'something'));
+ *     $router->createUrl('post', array('slug' => 'something'));
  *     // Generates: https://example.com/posts/something
- *     Router::getInstance()->createUrl('post', array('slug' => 'something'), true, true);
+ *     $router->createUrl('post', array('slug' => 'something'), true, true);
  *
  * @author Kanat Gailimov <gailimov@gmail.com>
  */
 class Router
 {
-    /**
-     * Singleton instance
-     *
-     * @var \tabouret\Router
-     */
-    private static $_instance;
-
     /**
      * Routes
      *
@@ -55,74 +48,11 @@ class Router
     private $_routes = array();
 
     /**
-     * Module
-     *
-     * @var string
-     */
-    private $_module;
-
-    /**
-     * Controller
-     *
-     * @var string
-     */
-    private $_controller;
-
-    /**
-     * Action
-     *
-     * @var string
-     */
-    private $_action;
-
-    /**
-     * Returns singleton instance
-     *
-     * @return \tabouret\Router
-     */
-    public static function getInstance()
-    {
-        if (!self::$_instance)
-            self::$_instance = new self();
-        return self::$_instance;
-    }
-
-    /**
-     * Returns module
-     *
-     * @return string
-     */
-    public function getModule()
-    {
-        return $this->_module;
-    }
-
-    /**
-     * Returns controller
-     *
-     * @return string
-     */
-    public function getController()
-    {
-        return $this->_controller;
-    }
-
-    /**
-     * Returns action
-     *
-     * @return string
-     */
-    public function getAction()
-    {
-        return $this->_action;
-    }
-
-    /**
      * Adds route
      *
      * Usage example:
      *
-     *     Router::getInstance()->add('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
+     *     $router->addRoute('post', array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show'));
      *
      *     In this example we set route with name "post". Second argument is array of URL rule.
      *     It contains URL pattern and callback function separated by dot and consisting of module,
@@ -132,7 +62,7 @@ class Router
      * @param  array  $rule Rule
      * @return \tabouret\Router
      */
-    public function add($name, array $rule)
+    public function addRoute($name, array $rule)
     {
         $this->_routes[(string) $name] = $rule;
 
@@ -140,39 +70,24 @@ class Router
     }
 
     /**
-     * Dispatching
+     * Adds routes
      *
-     * @return mixed Result of call_user_func() function
+     * Usage example:
+     *
+     *     $router->addRoutes(array(
+     *         'home' => array('^$', 'main.site.index'),
+     *         'post' => array('^posts/(?P<slug>[-_a-z0-9а-я]+)$', 'blog.posts.show')
+     *     ));
+     *
+     * @param  array $routes Routes
+     * @return \tabouret\Router
      */
-    public function dispatch()
+    public function addRoutes(array $routes)
     {
-        foreach ($this->_routes as $name => $rule) {
-            if (preg_match('#' . $rule[0] . '#u', $this->getUrn(), $matches)) {
-                foreach ($matches as $key => $value) {
-                    if (is_int($key))
-                        continue;
-                    $_GET[$key] = $value;
-                }
-                list($this->_module, $this->_controller, $this->_action) = explode('.', $rule[1]);
-                $moduleDir = Registry::get('rootPath') . '/app/modules/' . $this->_module;
-                if (!is_dir($moduleDir))
-                    throw new Exception('Module "' . $this->_module . '" not found');
-                $controllerFile = $moduleDir . '/controllers/' . $this->_controller . '.php';
-                if (!file_exists($controllerFile))
-                    throw new Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
-                require_once $controllerFile;
-                $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
-                if (!function_exists($func)) {
-                    header('HTTP/1.1 404 Not Found');
-                    die('Not Found');
-                }
-                return call_user_func($func);
-            }
-        }
+        foreach ($routes as $name => $rule)
+            $this->addRoute($name, $rule);
 
-        // Nothing matched - 404
-        header('HTTP/1.1 404 Not Found');
-        die('Not Found');
+        return $this;
     }
 
     /**
@@ -231,6 +146,49 @@ class Router
     }
 
     /**
+     * Returns true if the URL matches to the rule, otherwise returns false
+     *
+     * @param  string $url URL
+     * @return bool
+     */
+    public function isMatched($url)
+    {
+        foreach ($this->_routes as $name => $rule) {
+            if (preg_match('#' . $rule[0] . '#u', $url))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns matched route parts (module, controller, action)
+     *
+     * @return array|false If success returns matched route parts, otherwise returns false
+     */
+    public function getMatchedRouteParts()
+    {
+        foreach ($this->_routes as $name => $rule) {
+            if (preg_match('#' . $rule[0] . '#u', $this->getUrn(), $matches)) {
+                foreach ($matches as $key => $value) {
+                    if (is_int($key))
+                        continue;
+                    $_GET[$key] = $value;
+                }
+                $rule = explode('.', $rule[1]);
+                return array(
+                    'module' => $rule[0],
+                    'controller' => $rule[1],
+                    'action' => $rule[2]
+                );
+            }
+        }
+
+        // Nothing matched
+        return false;
+    }
+
+    /**
      * Prepares and returns URN
      *
      * @return string
@@ -263,13 +221,5 @@ class Router
     private function getHostInfo($https = false)
     {
         return ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
-    }
-
-    private function __construct()
-    {
-    }
-
-    private function __clone()
-    {
     }
 }

@@ -40,7 +40,7 @@ class View
      */
     public static function render($params = array())
     {
-        echo self::fetch(self::getRouter()->getController() . '/' . self::getRouter()->getAction(), $params);
+        echo self::fetch(App::getInstance()->getController() . '/' . App::getInstance()->getAction(), $params);
     }
 
     /**
@@ -80,22 +80,12 @@ class View
     {
         extract($params);
         ob_start();
-        $templateFile = Registry::get('rootPath') . '/app/modules/' . self::getRouter()->getModule() .
+        $templateFile = App::getInstance()->config['appPath'] . '/modules/' . App::getInstance()->getModule() .
                         '/views/' . $template . '.php';
         if (!file_exists($templateFile))
             throw new Exception('View file "' . $template . '.php" not found');
         include_once $templateFile;
 
         return ob_get_clean();
-    }
-
-    /**
-     * Returns tabouret\Router singleton instance
-     *
-     * @return \tabouret\Router
-     */
-    private static function getRouter()
-    {
-        return Router::getInstance();
     }
 }

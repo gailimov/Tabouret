@@ -33,6 +33,13 @@ namespace tabouret;
 class View
 {
     /**
+     * Use module layout?
+     *
+     * @var bool
+     */
+    private static $_useModuleLayout = false;
+
+    /**
      * Renders template
      *
      * @param  array  $params Params
@@ -52,7 +59,17 @@ class View
      */
     public static function renderPartial($template, $params = array())
     {
-        echo self::fetchPartial($template, $params);
+        echo self::fetchPartialOfModule($template, $params);
+    }
+
+    /**
+     * Sets module layout
+     *
+     * @return void
+     */
+    public static function useModuleLayout()
+    {
+        self::$_useModuleLayout = true;
     }
 
     /**
@@ -64,9 +81,36 @@ class View
      */
     private static function fetch($template, $params = array())
     {
-        $content = self::fetchPartial($template, $params);
+        $data = array('content' => self::fetchPartialOfModule($template, $params));
 
-        return self::fetchPartial('layouts/main', array('content' => $content));
+        return self::$_useModuleLayout
+               ? self::fetchPartialOfModule('layouts/layout', $data)
+               : self::fetchPartialOfApp('layouts/app', $data);
+    }
+
+    /**
+     * Fetches partial template of application
+     *
+     * @param  string $template Template
+     * @param  array  $params   Params
+     * @return string
+     */
+    private static function fetchPartialOfApp($template, $params = array())
+    {
+        return self::fetchPartial('views/' . $template . '.php', $params);
+    }
+
+    /**
+     * Fetches partial template of module
+     *
+     * @param  string $template Template
+     * @param  array  $params   Params
+     * @return string
+     */
+    private static function fetchPartialOfModule($template, $params = array())
+    {
+        return self::fetchPartial('modules/' . App::getInstance()->getModule() . '/views/' . $template . '.php',
+                                  $params);
     }
 
     /**
@@ -80,10 +124,9 @@ class View
     {
         extract($params);
         ob_start();
-        $templateFile = App::getInstance()->config['appPath'] . '/modules/' . App::getInstance()->getModule() .
-                        '/views/' . $template . '.php';
+        $templateFile = App::getInstance()->config['appPath'] . '/' . $template;
         if (!file_exists($templateFile))
-            throw new Exception('View file "' . $template . '.php" not found');
+            throw new Exception('View file "' . $template . '" not found');
         include_once $templateFile;
 
         return ob_get_clean();

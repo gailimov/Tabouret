@@ -32,7 +32,7 @@ class NotFoundException extends Exception
         header('HTTP/1.1 404 Not Found');
 
         list($module, $controller, $action) = explode('.', App::getInstance()->config['error404Action']);
-        
+
         $controllerFile = App::getInstance()->config['appPath'] . '/modules/' .
                           $module . '/controllers/' . $controller . '.php';
 

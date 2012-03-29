@@ -5,7 +5,7 @@
         <title>Tabouret</title>
     </head>
     <body>
-        <h1>This is layout</h1>
+        <h2>I'm layout of app. Find me in app/views/layouts/app.php</h2>
         <?= $content ?>
     </body>
 </html>

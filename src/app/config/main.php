@@ -2,6 +2,7 @@
 
 return array(
     'appPath' => __DIR__ . '/..',
+    'error404Action' => 'main.site.error404',
 
     'routes' => array(
         'home' => array('^$', 'main.site.index'),

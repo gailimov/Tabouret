@@ -31,11 +31,14 @@ class NotFoundException extends Exception
     {
         header('HTTP/1.1 404 Not Found');
 
-        $controller = App::getInstance()->config['appPath'] . '/modules/main/controllers/site.php';
+        list($module, $controller, $action) = explode('.', App::getInstance()->config['error404Action']);
+        
+        $controllerFile = App::getInstance()->config['appPath'] . '/modules/' .
+                          $module . '/controllers/' . $controller . '.php';
 
-        if (file_exists($controller)) {
-            require_once $controller;
-            $func = '\main\controllers\site\error404';
+        if (file_exists($controllerFile)) {
+            require_once $controllerFile;
+            $func = '\\' . $module . '\\controllers\\' . $controller . '\\' . $action;
             if (function_exists($func))
                 return $func($message);
         }

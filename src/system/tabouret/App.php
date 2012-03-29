@@ -221,7 +221,7 @@ class App
 
         require_once $controllerFile;
 
-        $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
+        $func = $this->_module . '\\' . $this->_controller . '\\' . $this->_action;
 
         if (!function_exists($func))
             throw new NotFoundException('404 Not Found');

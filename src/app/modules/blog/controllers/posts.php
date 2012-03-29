@@ -1,6 +1,6 @@
 <?php
 
-namespace blog\controllers\posts;
+namespace blog\posts;
 
 use tabouret\View;
 

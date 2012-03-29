@@ -1,6 +1,6 @@
 <?php
 
-namespace main\controllers\site;
+namespace main\site;
 
 use tabouret\View;
 
@@ -13,4 +13,3 @@ function index()
 {
     View::render();
 }
-

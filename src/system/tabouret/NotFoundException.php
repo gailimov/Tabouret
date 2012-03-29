@@ -38,7 +38,7 @@ class NotFoundException extends Exception
 
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
-            $func = '\\' . $module . '\\controllers\\' . $controller . '\\' . $action;
+            $func = '\\' . $module . '\\' . $controller . '\\' . $action;
             if (function_exists($func))
                 return $func($message);
         }

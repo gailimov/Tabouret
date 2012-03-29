@@ -24,6 +24,7 @@ return array(
         'post' => array('^posts/(?P<slug>[-_a-z0-9]+)$', 'blog.posts.show')
     )
 );
+```
 
 ### Then create module and controller (app/modules/blog/controllers/posts.php).
 
@@ -51,6 +52,7 @@ function show()
     $comments = $commentsModel->getByPost($post->id);
     View::render(array('post' => $post, 'comments' => $comments));
 }
+```
 
 ### Layout (app/views/layouts/app.php):
 
@@ -65,6 +67,7 @@ function show()
         <?= $content ?>
     </body>
 </html>
+```
 
 ### Views (app/modules/blog/views/posts/):
 
@@ -74,6 +77,7 @@ function show()
     <h1><a href="<?= App::getInstance()->getRouter()->createUrl('post', array('slug' => $post->slug)) ?>"><?= $post->title ?></a></h1>
     <?= $post->content ?>
 <?php endforeach ?>
+```
 
 ```php
 <!-- show.php -->
@@ -81,6 +85,7 @@ function show()
 <?= $post->content ?>
 <h2>Comments:</h2>
 <?php View::renderPartial('posts/_comments', array('comments' => $comments)) ?>
+```
 
 ```php
 <!-- _comments.php -->
@@ -88,6 +93,7 @@ function show()
     <?= $comment->author ?>
     <?= $comment->content ?>
 <?php endforeach ?>
+```
 
 ### OK, where is the model?
 

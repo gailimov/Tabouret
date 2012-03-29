@@ -8,4 +8,4 @@ $config = __DIR__ . '/../app/config/main.php';
 
 require_once $app;
 
-tabouret\App::getInstance()->init($config)->dispatch();
+tabouret\App::getInstance()->init($config)->run();

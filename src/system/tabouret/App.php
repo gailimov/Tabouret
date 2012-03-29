@@ -20,7 +20,7 @@ namespace tabouret;
  * Usage example:
  *
  *     // Running application
- *     App::getInstance()->init($config)->dispatch();
+ *     App::getInstance()->init($config)->run();
  *
  *     // You can access to the config using property
  *     App::getInstance()->config['site']['title'];
@@ -97,51 +97,23 @@ class App
      */
     public function init($config)
     {
-        $this->initConfig($config)->initLoader();
-
-        return $this;
+        return $this->initConfig($config)->initLoader();
     }
 
     /**
-     * Dispatching
+     * Running
      *
-     * @return mixed
+     * @return void
      */
-    public function dispatch()
+    public function run()
     {
-        $options = $this->getRouter()->addRoutes($this->config['routes'])->getMatchedRouteParts();
-
-        if (!$options) {
-            header('HTTP/1.1 404 Not Found');
-            echo 'Not Found';
-            return;
+        try {
+            $this->dispatch();
+        } catch (NotFoundException $e) {
+            $e->handle($e->getMessage());
+        } catch(Exception $e) {
+            die($e->getMessage());
         }
-
-        $this->_module = $options['module'];
-        $this->_controller = $options['controller'];
-        $this->_action = $options['action'];
-
-        $moduleDir = $this->config['appPath'] . '/modules/' . $this->_module;
-
-        if (!is_dir($moduleDir))
-            throw new Exception('Module "' . $this->_module . '" not found');
-
-        $controllerFile = $moduleDir . '/controllers/' . $this->_controller . '.php';
-
-        if (!file_exists($controllerFile))
-            throw new Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
-
-        require_once $controllerFile;
-
-        $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
-
-        if (!function_exists($func)) {
-            header('HTTP/1.1 404 Not Found');
-            echo 'Not Found';
-            return;
-        }
-
-        call_user_func($func);
     }
 
     /**
@@ -219,6 +191,42 @@ class App
         $loader->register();
 
         return $this;
+    }
+
+    /**
+     * Dispatching
+     *
+     * @return mixed
+     */
+    private function dispatch()
+    {
+        $options = $this->getRouter()->addRoutes($this->config['routes'])->getMatchedRouteParts();
+
+        if (!$options)
+            throw new NotFoundException('404 Not Found');
+
+        $this->_module = $options['module'];
+        $this->_controller = $options['controller'];
+        $this->_action = $options['action'];
+
+        $moduleDir = $this->config['appPath'] . '/modules/' . $this->_module;
+
+        if (!is_dir($moduleDir))
+            throw new Exception('Module "' . $this->_module . '" not found');
+
+        $controllerFile = $moduleDir . '/controllers/' . $this->_controller . '.php';
+
+        if (!file_exists($controllerFile))
+            throw new Exception('Controller "' . $this->_controller . '" in module "' . $this->_module . '" not found');
+
+        require_once $controllerFile;
+
+        $func = $this->_module . '\\controllers\\' . $this->_controller . '\\' . $this->_action;
+
+        if (!function_exists($func))
+            throw new NotFoundException('404 Not Found');
+
+        call_user_func($func);
     }
 
     private function __construct()

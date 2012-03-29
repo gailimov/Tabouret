@@ -10,7 +10,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     {
         $this->_app = App::getInstance();
         $_SERVER['REQUEST_URI'] = 'posts/something';
-        $this->_app->dispatch();
+        $this->_app->run();
     }
 
     public function testGetInstance()
@@ -34,15 +34,15 @@ class AppTest extends PHPUnit_Framework_TestCase
                             $this->_app->config['routes']['post']);
     }
 
-    public function testDispatch()
+    public function testRun()
     {
         $_SERVER['REQUEST_URI'] = 'foo/bar';
         try {
-            $this->_app->dispatch();
+            $this->_app->run();
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Expected exception about that module not found');
+        $this->fail('Expected exception for 404 error');
     }
 
     public function testGetRouter()

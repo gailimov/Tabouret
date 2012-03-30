@@ -4,6 +4,8 @@
 
 ### Still under the development.
 
+[![Build Status](https://secure.travis-ci.org/VIs-a-vis/Tabouret.png)](http://travis-ci.org/VIs-a-vis/Tabouret)
+
 ## Usage examples
 
 ### First set routes (app/config/app.php).

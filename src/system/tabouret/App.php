@@ -188,6 +188,9 @@ class App
         }
         $this->config = require_once $config;
 
+        if (!isset($this->config['appPath']))
+            $this->config['appPath'] = __DIR__ . '/../../app';
+
         return $this;
     }
 

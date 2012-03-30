@@ -64,4 +64,14 @@ class AppTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('show', $this->_app->getAction());
     }
+
+    public function testCreateUrl()
+    {
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SCRIPT_NAME'] = '/';
+        $this->assertEquals('/', $this->_app->createUrl('home'));
+        $this->assertEquals('/posts/something', $this->_app->createUrl('post', array('slug' => 'something')));
+        $this->assertEquals('https://localhost/posts/something',
+                             $this->_app->createUrl('post', array('slug' => 'something'), true, true));
+    }
 }

@@ -74,7 +74,7 @@ function show()
 ```php
 <!-- index.php -->
 <?php foreach ($posts as $post): ?>
-    <h1><a href="<?= App::getInstance()->getRouter()->createUrl('post', array('slug' => $post->slug)) ?>"><?= $post->title ?></a></h1>
+    <h1><a href="<?= App::getInstance()->createUrl('post', array('slug' => $post->slug)) ?>"><?= $post->title ?></a></h1>
     <?= $post->content ?>
 <?php endforeach ?>
 ```

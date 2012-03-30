@@ -159,6 +159,22 @@ class App
     }
 
     /**
+     * Creates URL
+     *
+     * @see \tabouret\Router::createUrl()
+     *
+     * @param  string $name     Route name
+     * @param  array  $params   Params
+     * @param  bool   $absolute URL should be absolute?
+     * @param  bool   $https    Use HTTPS?
+     * @return string
+     */
+    public function createUrl($name, array $params = null, $absolute = false, $https = false)
+    {
+        return $this->getRouter()->createUrl($name, $params, $absolute, $https);
+    }
+
+    /**
      * Initializes config
      *
      * @param  string $config Path to config file
